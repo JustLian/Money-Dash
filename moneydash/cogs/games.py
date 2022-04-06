@@ -1,4 +1,3 @@
-from urllib import response
 from nextcord import Interaction, SlashOption
 import nextcord
 import moneydash.db as db

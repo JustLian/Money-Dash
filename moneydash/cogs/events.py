@@ -1,4 +1,3 @@
-from operator import ne
 import sys
 import traceback
 import nextcord
