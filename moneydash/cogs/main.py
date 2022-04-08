@@ -21,7 +21,6 @@ class Economy(commands.Cog):
     @nextcord.slash_command('profile', 'Получить профиль пользователя', [TEST_GUILD_ID])
     async def cmd_profile(self, inter: Interaction, user: nextcord.User = SlashOption('player', 'Пользователь', required=False)):
         if not user:
-            db.create_account(inter.user.id)
             data = db.get_account(inter.user.id)
             em = nextcord.Embed(title='Профиль пользователя',
                                 colour=nextcord.Colour.gold())
@@ -32,7 +31,6 @@ class Economy(commands.Cog):
                 lambda: 'Нет' if data['job'] == {} else data['job']['name'])())
             await inter.response.send_message(embed=em)
         else:
-            db.create_account(user.id)
             data = db.get_account(user.id)
             em = nextcord.Embed(title='Профиль пользователя',
                                 colour=nextcord.Colour.gold())
@@ -45,8 +43,6 @@ class Economy(commands.Cog):
 
     @nextcord.slash_command('transfer', 'Перевести деньги пользователю', [TEST_GUILD_ID])
     async def cmd_transfer(self, inter: Interaction, user: nextcord.User = SlashOption('player', 'Пользователь', required=True), amount: int = SlashOption(description='Сумма для перечисления', required=True)):
-        db.create_account(inter.user.id)
-        db.create_account(user.id)
         data = db.get_account(inter.user.id)
         if data['bank'] >= amount:
             db.update_account(inter.user.id, ('bank', -1 * amount))
@@ -63,7 +59,6 @@ class Economy(commands.Cog):
 
     @nextcord.slash_command('deposit', 'Пополнить баланс в банке', [TEST_GUILD_ID])
     async def cmd_deposit(self, inter: Interaction, amount: int = SlashOption(description='Сумма для пополнения', required=True)):
-        db.create_account(inter.user.id)
         data = db.get_account(inter.user.id)
         if data['wallet'] >= amount:
             db.update_account(inter.user.id, ('wallet', -
@@ -82,7 +77,6 @@ class Economy(commands.Cog):
 
     @nextcord.slash_command('withdraw', 'Вывести деньги из банка', [TEST_GUILD_ID])
     async def cmd_withdraw(self, inter: Interaction, amount: int = SlashOption(description='Сумма для вывода', required=True)):
-        db.create_account(inter.user.id)
         data = db.get_account(inter.user.id)
         if data['bank'] >= amount:
             db.update_account(
