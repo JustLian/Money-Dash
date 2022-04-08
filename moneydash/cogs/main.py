@@ -24,7 +24,11 @@ class Economy(commands.Cog):
             data = db.get_account(inter.user.id)
             em = nextcord.Embed(title='Профиль пользователя',
                                 colour=nextcord.Colour.gold())
-            em.set_author(name=inter.user.name, icon_url=inter.user.avatar.url)
+            if inter.user.avatar is not None:
+                em.set_author(name=inter.user.name,
+                              icon_url=inter.user.avatar.url)
+            else:
+                em.set_author(name=inter.user.name)
             em.add_field(name='Наличка', value=data['wallet'])
             em.add_field(name='В банке', value=data['bank'])
             em.add_field(name='Работа', value=(
@@ -34,7 +38,10 @@ class Economy(commands.Cog):
             data = db.get_account(user.id)
             em = nextcord.Embed(title='Профиль пользователя',
                                 colour=nextcord.Colour.gold())
-            em.set_author(name=user.name, icon_url=user.avatar.url)
+            if user.avatar is not None:
+                em.set_author(name=user.name, icon_url=user.avatar.url)
+            else:
+                em.set_author(name=user.name)
             em.add_field(name='Наличка', value=data['wallet'])
             em.add_field(name='В банке', value=data['bank'])
             em.add_field(name='Работа', value=(
