@@ -10,6 +10,7 @@ class Games(commands.Cog):
         self.bot = bot
 
     @nextcord.slash_command('rob', 'Ограбить игрока - TODO', [TEST_GUILD_ID])
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def cmd_rob(self, inter: Interaction, user: nextcord.User = SlashOption('player', 'Пользователь', True), amount: int = SlashOption('amount', 'Сумма для ограбления. Выше сумма - меньше шансы на успех', True)):
         await inter.response.send_message('will be implemented in futere')
 
