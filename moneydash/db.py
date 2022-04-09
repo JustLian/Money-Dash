@@ -61,3 +61,11 @@ def update_account(uId, *args) -> None:
     db.commit()
     cur.close()
     db.close()
+
+
+def stats() -> dict:
+    db = _connect_db()
+    cur = db.cursor()
+    st = cur.execute(
+        '''SELECT SUM(bank), SUM(wallet), AVG(bank), AVG(wallet) FROM users''').fetchone()
+    return {'bank_sum': st[0], 'wallet_sum': st[1], 'wallet_avg': st[2], 'bank_avg': st[3]}

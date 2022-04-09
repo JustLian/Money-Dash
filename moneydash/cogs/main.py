@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from nextcord import Interaction, SlashOption
 import nextcord
 import moneydash.db as db
@@ -9,9 +10,27 @@ class Main(commands.Cog):
     def __init__(self, bot):
         self.bot: commands.Bot = bot
 
-    @nextcord.slash_command('ping', 'Test if bot is running', [TEST_GUILD_ID])
-    async def cmd_ping(self, inter: nextcord.Interaction):
-        await inter.response.send_message('Pong!')
+    @nextcord.slash_command('credits', guild_ids=[TEST_GUILD_ID])
+    async def cmd_credits(self, inter: Interaction):
+        await inter.response.send_message('Изображение в /dice: https://www.flaticon.com/authors/juicy-fish\nАватар бота: https://www.flaticon.com/authors/kiranshastry')
+
+    @nextcord.slash_command('stats', 'Статистика бота', [TEST_GUILD_ID])
+    async def cmd_stats(self, inter: Interaction):
+        em = nextcord.Embed(title='Статистика бота',
+                            url='https://github.com/JustLian/Money-Dash', colour=nextcord.Colour.blurple())
+        st = db.stats()
+        em.add_field(name='Всего налички у игроков',
+                     value=st['wallet_sum'], inline=False)
+        em.add_field(name='Всего денег в банке',
+                     value=st['bank_sum'], inline=False)
+        em.add_field(name='Среднее количество налички',
+                     value=round(st['wallet_avg']), inline=False)
+        em.add_field(name='Средний баланс банка',
+                     value=round(st['bank_avg']), inline=False)
+        uptime: timedelta = (datetime.now() - self.bot.start_time)
+        em.add_field(name='Аптайм бота',
+                     value=str(uptime).split('.')[0], inline=False)
+        await inter.response.send_message(embed=em)
 
 
 class Economy(commands.Cog):

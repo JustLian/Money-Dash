@@ -1,3 +1,4 @@
+from datetime import datetime
 import sys
 import traceback
 import nextcord
@@ -12,6 +13,7 @@ with open('./secrets/token', 'r', encoding='utf8') as f:
 
 
 bot = commands.Bot(command_prefix='-', intents=nextcord.Intents.all())
+bot.start_time = datetime.now()
 
 
 COGS = [path.split("\\")[-1][:-3] for path in glob("./moneydash/cogs/*.py")]
