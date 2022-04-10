@@ -1,3 +1,4 @@
+import asyncio
 import sys
 import traceback
 import nextcord
@@ -30,6 +31,9 @@ class Events(commands.Cog):
             for member in guild.members:
                 if not member.bot:
                     db.create_account(member.id)
+        await asyncio.sleep(2)
+        await self.bot.change_presence(status=nextcord.Status.idle, activity=nextcord.Activity(
+            type=nextcord.ActivityType.playing, name="Alpha test (3.1a)"))
 
     @commands.Cog.listener()
     async def on_member_join(self, mem):

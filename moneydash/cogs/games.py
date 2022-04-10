@@ -76,7 +76,7 @@ class Games(commands.Cog):
     @nextcord.slash_command('coin_flip', 'Бросить монету', [TEST_GUILD_ID])
     @commands.cooldown(1, 8, commands.BucketType.user)
     async def cmd_coinflip(self, inter: Interaction, amount: int = SlashOption('amount', 'Сумма на которую вы хотите сыграть', True)):
-        if db.get_account(inter.user.id)['wallet'] >= amount:
+        if db.get_account(inter.user.id)['wallet'] >= amount * 2:
             em = nextcord.Embed(
                 title='Подкидываю монету', description=f'Вы поставили {amount}', colour=nextcord.Colour.dark_gold())
             await inter.response.send_message(embed=em)
@@ -90,7 +90,7 @@ class Games(commands.Cog):
                 em.description = f'Вы проиграли!'
                 em.colour = nextcord.Colour.dark_blue()
                 await inter.edit_original_message(embed=em)
-                db.update_account(inter.user.id, ('wallet', -1 * amount))
+                db.update_account(inter.user.id, ('wallet', -2 * amount))
         else:
             data = db.get_account(inter.user.id)
             em = nextcord.Embed(title='Надостаточно налички',
