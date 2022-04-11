@@ -1,10 +1,10 @@
 from datetime import datetime
+import os
 import sys
 import traceback
 import nextcord
 from nextcord.ext import commands
 import asyncio
-from glob import glob
 from moneydash import TEST_GUILD_ID
 
 
@@ -16,7 +16,8 @@ bot = commands.Bot(command_prefix='-', intents=nextcord.Intents.all())
 bot.start_time = datetime.now()
 
 
-COGS = [path.split("\\")[-1][:-3] for path in glob("./moneydash/cogs/*.py")]
+COGS = [name.split('.')[0] for name in os.listdir(
+    './moneydash/cogs') if os.path.isfile(os.path.join('./moneydash/cogs', name))]
 
 
 if __name__ == '__main__':

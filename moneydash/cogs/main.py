@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from nextcord import Interaction, SlashOption
+from moneydash.settings.jobs import jobs
 import nextcord
 import moneydash.db as db
 from nextcord.ext import commands
@@ -42,29 +43,49 @@ class Economy(commands.Cog):
         if not user:
             data = db.get_account(inter.user.id)
             em = nextcord.Embed(title='Профиль пользователя',
-                                colour=nextcord.Colour.gold())
+                                colour=int(data['meta']['color'], 16))
+
             if inter.user.avatar is not None:
-                em.set_author(name=inter.user.name,
+                em.set_author(name=data['meta']['emoji'] + inter.user.name,
                               icon_url=inter.user.avatar.url)
             else:
-                em.set_author(name=inter.user.name)
+                em.set_author(name=data['meta']['emoji'] + inter.user.name)
+
+            em.add_field(name='Значки', value=(lambda: ' '.join(
+                data['meta']['badges']) if data['meta']['badges'] != [] else 'Нет')(), inline=False)
+
+            em.add_field(name='Уровень', value=data['level'])
+
             em.add_field(name='Наличка', value=data['wallet'])
+
             em.add_field(name='В банке', value=data['bank'])
+
             em.add_field(name='Работа', value=(
-                lambda: 'Нет' if data['job'] == {} else data['job']['name'])())
+                lambda: 'Нет' if data['job'] == "None" else jobs[data['job']]['name'])())
+
             await inter.response.send_message(embed=em)
         else:
             data = db.get_account(user.id)
             em = nextcord.Embed(title='Профиль пользователя',
-                                colour=nextcord.Colour.gold())
+                                colour=data['meta']['color'])
+
             if user.avatar is not None:
-                em.set_author(name=user.name, icon_url=user.avatar.url)
+                em.set_author(name=data['meta']['emoji'] +
+                              user.name, icon_url=user.avatar.url)
             else:
-                em.set_author(name=user.name)
+                em.set_author(name=data['meta']['emoji'] + user.name)
+
+            em.add_field(name='Значки', value=(lambda: ' '.join(
+                data['meta']['badges']) if data['meta']['badges'] != [] else 'Нет')(), inline=False)
+
+            em.add_field(name='Уровень', value=data['level'])
+
             em.add_field(name='Наличка', value=data['wallet'])
+
             em.add_field(name='В банке', value=data['bank'])
+
             em.add_field(name='Работа', value=(
-                lambda: 'Нет' if data['job'] == {} else data['job']['name'])())
+                lambda: 'Нет' if data['job'] == "None" else jobs[data['job']]['name'])())
             await inter.response.send_message(embed=em)
 
     @nextcord.slash_command('transfer', 'Перевести деньги пользователю', [TEST_GUILD_ID])

@@ -4,6 +4,7 @@ import traceback
 import nextcord
 from nextcord.ext import commands
 from moneydash import db
+from moneydash import __version__ as version
 
 
 class Events(commands.Cog):
@@ -33,7 +34,7 @@ class Events(commands.Cog):
                     db.create_account(member.id)
         await asyncio.sleep(2)
         await self.bot.change_presence(status=nextcord.Status.idle, activity=nextcord.Activity(
-            type=nextcord.ActivityType.playing, name="Alpha test (3.1a)"))
+            type=nextcord.ActivityType.playing, name=f"Alpha test ({version})"))
 
     @commands.Cog.listener()
     async def on_member_join(self, mem):

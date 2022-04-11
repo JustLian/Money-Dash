@@ -3,9 +3,11 @@ import random
 from nextcord import Interaction, SlashOption
 import moneydash.db as db
 import nextcord
+import moneydash.utils as utils
 from nextcord.ext import commands
 from moneydash import TEST_GUILD_ID
 import moneydash.settings.work as setts
+from moneydash.settings.jobs import jobs
 bottles = setts.Bottles
 
 
@@ -45,6 +47,7 @@ class SelectDist(nextcord.ui.Select):
             em.add_field(name='Доход', value=(
                 c_bottles - b_bottles) * bottles.bottle_cost)
             await inter.edit_original_message(embed=em)
+            await utils.add_exp(inter, (c_bottles - b_bottles) // 6)
         else:
             await inter.response.pong()
 
@@ -62,5 +65,53 @@ class Work(commands.Cog):
             await inter.response.send_message(view=view, ephemeral=True)
 
 
+class Apply(nextcord.ui.View):
+    def __init__(self, job):
+        super().__init__()
+        self.job = job
+
+    @nextcord.ui.button(label='Устроиться на работу', style=nextcord.ButtonStyle.green)
+    async def apply(self, button: nextcord.ui.Button, inter: nextcord.Interaction):
+        data = db.get_account(inter.user.id)
+        if data['level'] < jobs[self.job]['level']:
+            await inter.response.send_message(embed=nextcord.Embed(title='Вы не подходите по уровню для этой профессии', colour=nextcord.Colour.red()), ephemeral=True)
+            return
+        await inter.response.edit_message(embed=nextcord.Embed(title='Новая работа!', description=f'Вы успешно устроились на работу {jobs[self.job]["name"]}!', colour=nextcord.Colour.green()))
+        db.update_account(inter.user.id, ('job', self.job))
+        if jobs[self.job]['badge'] != '' and jobs[self.job]['badge'] not in data['meta']['badges']:
+            await inter.send('Получен новый значок! (Вы можете увидеть его в своём профиле - /profile)')
+            data['meta']['badges'].append(jobs[self.job]['badge'])
+            db.update_account(inter.user.id, ('meta', data['meta']))
+
+
+class SelectJob(nextcord.ui.Select):
+    def __init__(self):
+        super().__init__(
+            placeholder="Выберите вакансию",
+            max_values=1,
+            min_values=1,
+            options=[nextcord.SelectOption(label=jobs[job]['name'], value=job, description=f'Требуемый уровень: {jobs[job]["level"]}') for job in jobs])
+
+    async def callback(self, inter: Interaction):
+        job = inter.data['values'][0]
+        em = nextcord.Embed(
+            title=f'Вакансии - {jobs[job]["name"]}', description=f'Требуемый уровень: {jobs[job]["level"]}', colour=nextcord.Colour.blurple())
+        em.add_field(name='Зарплата/день', value=jobs[job]['salary'])
+        em.add_field(name='Опыт/день', value=jobs[job]['exp'])
+        await inter.response.edit_message(embed=em, view=Apply(job))
+
+
+class Job(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @nextcord.slash_command('jobs', 'Устроиться на работу/Просотреть список работ', [TEST_GUILD_ID])
+    async def cmd_jobs(self, inter: Interaction):
+        view = nextcord.ui.View(timeout=None)
+        view.add_item(SelectJob())
+        await inter.response.send_message(view=view)
+
+
 def setup(bot):
     bot.add_cog(Work(bot))
+    bot.add_cog(Job(bot))

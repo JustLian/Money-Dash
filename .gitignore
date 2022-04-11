@@ -2,3 +2,4 @@ secrets
 __pycache__
 data.sqlite
 .venv
+refactor_db.py

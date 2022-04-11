@@ -36,10 +36,14 @@ class Games(commands.Cog):
                 await inter.edit_original_message(embed=nextcord.Embed(title='Ограбление', description=f'Ограбление удалось! Вам удалось украсть {stolen}!', colour=nextcord.Colour.green()))
                 db.update_account(user.id, (BAL_TYPE, -1 * amount))
                 db.update_account(inter.user.id, ('wallet', stolen))
+                if amount >= 1000:
+                    await utils.add_exp(inter, 1)
             else:
                 lost = amount * (1 - co)
                 await inter.edit_original_message(embed=nextcord.Embed(title='Ограбление', description=f'Ограбление провалилось! Вы потеряли {lost}', colour=nextcord.Colour.red()))
                 db.update_account(inter.user.id, ('wallet', lost))
+                if amount >= 3000:
+                    await utils.add_exp(inter, 1)
         else:
             await inter.response.send_message(embed=nextcord.Embed(title='Ограбление', description=f'Недостаточно денег на счету жертвы', colour=nextcord.Colour.brand_red()))
 
@@ -65,6 +69,10 @@ class Games(commands.Cog):
                 em.colour = nextcord.Colour.blurple()
             file = nextcord.File('./assets/dice.png', filename='dice.png')
             await inter.edit_original_message(embed=em, file=file)
+            if amount >= 1000:
+                await utils.add_exp(inter, 1)
+            elif amount >= 8000:
+                await utils.add_exp(inter, 1)
         else:
             data = db.get_account(inter.user.id)
             em = nextcord.Embed(title='Надостаточно налички',
