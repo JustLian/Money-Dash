@@ -51,6 +51,16 @@ def get_account(uId) -> dict:
     return {'uId': d[0], 'bank': d[1], 'wallet': d[2], 'inventory': json.loads(d[3]), 'job': d[4], 'company': d[5], 'meta': json.loads(d[6]), 'level': d[7], 'exp': d[8]}
 
 
+def get_all_accounts(filter=''''''):
+    db = _connect_db()
+    cur = db.cursor()
+    cur.execute(f'''SELECT uId FROM users {filter}''')
+    d = cur.fetchall()
+    cur.close()
+    db.close()
+    return list(map(lambda x: x[0], d))
+
+
 def update_account(uId, *args) -> None:
     db = _connect_db()
     cur = db.cursor()

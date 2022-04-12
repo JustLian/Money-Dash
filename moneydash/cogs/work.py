@@ -4,7 +4,7 @@ from nextcord import Interaction, SlashOption
 import moneydash.db as db
 import nextcord
 import moneydash.utils as utils
-from nextcord.ext import commands
+from nextcord.ext import commands, tasks
 from moneydash import TEST_GUILD_ID
 import moneydash.settings.work as setts
 from moneydash.settings.jobs import jobs
@@ -64,6 +64,13 @@ class Work(commands.Cog):
             view.add_item(SelectDist())
             await inter.response.send_message(view=view, ephemeral=True)
 
+    @tasks.loop(hours=24)
+    async def loop_work(self):
+        for user in db.get_all_accounts('''WHERE job != "None"'''):
+            job = db.get_account(user)['job']
+            db.update_account(user, ('bank', jobs[job]['salary']))
+            await utils.add_exp(user, jobs[job]['exp'])
+
 
 class Apply(nextcord.ui.View):
     def __init__(self, job):
@@ -98,7 +105,9 @@ class SelectJob(nextcord.ui.Select):
             title=f'Вакансии - {jobs[job]["name"]}', description=f'Требуемый уровень: {jobs[job]["level"]}', colour=nextcord.Colour.blurple())
         em.add_field(name='Зарплата/день', value=jobs[job]['salary'])
         em.add_field(name='Опыт/день', value=jobs[job]['exp'])
-        await inter.response.edit_message(embed=em, view=Apply(job))
+        view = Apply(job)
+        view.add_item(SelectJob())
+        await inter.response.edit_message(embed=em, view=view)
 
 
 class Job(commands.Cog):

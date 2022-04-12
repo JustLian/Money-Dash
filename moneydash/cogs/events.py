@@ -35,6 +35,7 @@ class Events(commands.Cog):
         await asyncio.sleep(2)
         await self.bot.change_presence(status=nextcord.Status.idle, activity=nextcord.Activity(
             type=nextcord.ActivityType.playing, name=f"Alpha test ({version})"))
+        self.bot.get_cog('Work').loop_work.start()
 
     @commands.Cog.listener()
     async def on_member_join(self, mem):
